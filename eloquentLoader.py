@@ -1,17 +1,30 @@
 import os
-import discord
-from discord.ext import commands, tasks
-from discord import app_commands
 import sys
 import asyncio
 import time
 import logging
 from watchdog.observers import Observer
 from watchdog.events import LoggingEventHandler, FileSystemEventHandler
-import eloquentLoader
+from orator import DatabaseManager, Model
+from dotenv import load_dotenv
+load_dotenv()
 
 observer = Observer()
-saved_bot = None
+
+config = {
+    'mysql': {
+        'driver': os.environ.get('db_driver'),
+        'host': os.environ.get('db_host'),
+        'database': os.environ.get('db_database'),
+        'user': os.environ.get('db_user'),
+        'password': os.environ.get('db_password'),
+        'prefix': ''
+    }
+}
+
+db = DatabaseManager(config)
+Model.set_connection_resolver(db)
+
 
 async def get_file_names(directory_path):
     file_names = []
@@ -21,19 +34,13 @@ async def get_file_names(directory_path):
             file_names.append(entry)
     return file_names
 
-async def loadAll( bot ):
-    global saved_bot
-    saved_bot = bot
-    
-    await eloquentLoader.loadAll()
-    await eloquentLoader.hotReloader()
-
-    files_in_directory = await get_file_names("cogs")
+async def loadAll():
+    files_in_directory = await get_file_names("models")
     for file_name in files_in_directory:
         if( "__pycache__" in file_name ):
             continue
 
-        codeReader = open(f"cogs/{file_name}", "r")
+        codeReader = open(f"models/{file_name}", "r")
         code = codeReader.read()
         codeReader.close()
 
@@ -42,12 +49,10 @@ async def loadAll( bot ):
     
         exec( code, globals(), globals() )
 
-        await bot.add_cog( globals()[ file_name.capitalize().split(".")[0] ](bot) )
-        print(f"Loaded {file_name}")
+        print(f"+Model {file_name}")
 
-
-async def reloadCog( path ):
-    if( "cogs/" in path ):
+async def reloadModel( path ):
+    if( "models/" in path ):
         if( "__pycache__" in path ):
             return
 
@@ -60,16 +65,11 @@ async def reloadCog( path ):
         if( len(code) < 5 ):
             return
 
-        await saved_bot.remove_cog( file_name.capitalize().split(".")[0] )
-        try:
-            del globals()[ file_name.capitalize().split(".")[0] ]
-        except Exception as e:
-            print(f"Tried to remove {file_name} but its not loaded")
+        del globals()[ file_name.capitalize().split(".")[0] ]
     
         exec( code, globals(), globals() )
         
-        await saved_bot.add_cog( globals()[ file_name.capitalize().split(".")[0] ](saved_bot) )
-        print(f"Reloaded {file_name}")
+        print(f"Model reloaded {file_name}")
 
 
 class ChangeHandler(FileSystemEventHandler):
@@ -78,7 +78,7 @@ class ChangeHandler(FileSystemEventHandler):
 
     def on_modified(self, event):
         if not event.is_directory:
-            self.loop.create_task(reloadCog(event.src_path))
+            self.loop.create_task(reloadModel(event.src_path))
 
     def on_created(self, event):
         return

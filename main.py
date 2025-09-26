@@ -15,11 +15,12 @@ async def on_ready():
     await cogsLoader.loadAll( bot )
     await cogsLoader.hotReloader()
 
-    guild = discord.Object(id=os.environ.get('guild'))
+
+    guild = discord.Object(id=os.environ.get('discord_guild'))
     #bot.tree.copy_global_to(guild=guild)
 
     await bot.tree.sync(guild=guild)
-    await bot.tree.sync()
+    #await bot.tree.sync()
 
     print(f'We have logged in as {bot.user}')
 
@@ -28,4 +29,4 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-bot.run( os.environ.get('token') )
+bot.run( os.environ.get('discord_token') )
