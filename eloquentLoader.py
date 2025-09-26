@@ -3,6 +3,7 @@ import sys
 import asyncio
 import time
 import logging
+import bot
 from watchdog.observers import Observer
 from watchdog.events import LoggingEventHandler, FileSystemEventHandler
 from orator import DatabaseManager, Model

@@ -9,6 +9,9 @@ import logging
 from watchdog.observers import Observer
 from watchdog.events import LoggingEventHandler, FileSystemEventHandler
 import eloquentLoader
+import bot
+from dotenv import load_dotenv
+load_dotenv()
 
 observer = Observer()
 saved_bot = None
@@ -21,10 +24,7 @@ async def get_file_names(directory_path):
             file_names.append(entry)
     return file_names
 
-async def loadAll( bot ):
-    global saved_bot
-    saved_bot = bot
-    
+async def loadAll():
     await eloquentLoader.loadAll()
     await eloquentLoader.hotReloader()
 
@@ -42,34 +42,44 @@ async def loadAll( bot ):
     
         exec( code, globals(), globals() )
 
-        await bot.add_cog( globals()[ file_name.capitalize().split(".")[0] ](bot) )
+        await bot.controller.add_cog( globals()[ file_name.capitalize().split(".")[0] ](bot.controller) )
         print(f"Loaded {file_name}")
 
 
-async def reloadCog( path ):
-    if( "cogs/" in path ):
-        if( "__pycache__" in path ):
-            return
+async def reloadCog(path):
+    if "cogs/" not in path or "__pycache__" in path:
+        return
 
-        codeReader = open(path, "r")
-        code = codeReader.read()
-        codeReader.close()
+    codeReader = open(path, "r")
+    code = codeReader.read()
+    codeReader.close()
 
-        file_name = path.split("/")[-1]
+    file_name = path.split("/")[-1]
+    cog_name = file_name.capitalize().split(".")[0]
 
-        if( len(code) < 5 ):
-            return
+    #cog_names = list(bot.controller.cogs.keys())
+    #print("Loaded Cogs:", cog_names)
 
-        await saved_bot.remove_cog( file_name.capitalize().split(".")[0] )
-        try:
-            del globals()[ file_name.capitalize().split(".")[0] ]
-        except Exception as e:
-            print(f"Tried to remove {file_name} but its not loaded")
-    
-        exec( code, globals(), globals() )
-        
-        await saved_bot.add_cog( globals()[ file_name.capitalize().split(".")[0] ](saved_bot) )
-        print(f"Reloaded {file_name}")
+    print(f"Reloading {cog_name}...")
+
+    await bot.controller.remove_cog(cog_name)
+    await bot.controller.remove_cog(cog_name.lower())
+
+    guild = discord.Object(id=os.environ.get('discord_guild'))
+
+    bot.controller.tree.clear_commands(guild=guild)
+
+    globals().pop(cog_name, None)
+    globals().pop(cog_name.lower(), None)
+
+    exec(code, globals(), globals())
+    await bot.controller.add_cog(globals()[cog_name](bot.controller))
+
+    bot.controller.tree.copy_global_to(guild=guild)
+    await bot.controller.tree.sync(guild=guild)
+
+    print(f"Reloaded {cog_name}")
+
 
 
 class ChangeHandler(FileSystemEventHandler):
@@ -81,7 +91,9 @@ class ChangeHandler(FileSystemEventHandler):
             self.loop.create_task(reloadCog(event.src_path))
 
     def on_created(self, event):
-        return
+        if not event.is_directory:
+            self.loop.create_task(reloadCog(event.src_path))
+
 
 async def hotReloader():
     path = sys.argv[1] if len(sys.argv) > 1 else '.'

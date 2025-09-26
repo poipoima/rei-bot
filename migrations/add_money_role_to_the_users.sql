@@ -1,0 +1,3 @@
+ALTER TABLE users
+ADD COLUMN money INT DEFAULT 0 AFTER discord_id,
+ADD COLUMN role INT DEFAULT 0 AFTER money;
