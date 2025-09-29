@@ -8,8 +8,15 @@ class Economy(commands.GroupCog, name="economy", description="economy commands")
     async def wallet(self, interaction: discord.Interaction):
         localUser = User.first_or_create(discord_id=interaction.user.id)
         localUser = User.first_or_create(discord_id=interaction.user.id)
+    
+        embed = discord.Embed(
+            title="Economy",
+            description=f"💎 {localUser.money}",
+            color=discord.Color.green()
+        )
+        embed.set_thumbnail(url=interaction.user.display_avatar.url)
 
-        await interaction.response.send_message(f"Money = {localUser.money}")
+        await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="transfer", description="Transfer money.")
     async def transfer(self, interaction: discord.Interaction, member: discord.Member, number: int):
@@ -18,9 +25,27 @@ class Economy(commands.GroupCog, name="economy", description="economy commands")
 
         secondUser = User.first_or_create(discord_id=member.id)
         secondUser = User.first_or_create(discord_id=member.id)
- 
+
+        if( number < 0 ):
+            embed = discord.Embed(
+                title="Economy",
+                description=f"Can't be smaller than zero.",
+                color=discord.Color.red()
+            )
+            embed.set_thumbnail(url=interaction.user.display_avatar.url)
+
+            await interaction.response.send_message(embed=embed)
+            return
+
         if( firstUser.money-number < 0 ):
-            await interaction.response.send_message(f"Have no enough money.")
+            embed = discord.Embed(
+                title="Economy",
+                description=f"Have no enough money.",
+                color=discord.Color.red()
+            )
+            embed.set_thumbnail(url=interaction.user.display_avatar.url)
+
+            await interaction.response.send_message(embed=embed)
             return
 
         firstUser.money -= number
@@ -28,5 +53,11 @@ class Economy(commands.GroupCog, name="economy", description="economy commands")
         
         secondUser.money += number
         secondUser.save()
-        
-        await interaction.response.send_message(f"Transfered = {number}")
+
+        embed = discord.Embed(
+            title="Economy",
+            description=f"Transfered 💎 {number}",
+            color=discord.Color.blue()
+        )
+        embed.set_thumbnail(url=interaction.user.display_avatar.url)
+        await interaction.response.send_message(embed=embed)
