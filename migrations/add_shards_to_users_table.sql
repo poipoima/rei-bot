@@ -1,0 +1,2 @@
+ALTER TABLE users
+ADD COLUMN shards INT DEFAULT 0 AFTER money;

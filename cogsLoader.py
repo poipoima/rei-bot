@@ -2,6 +2,7 @@ import os
 import discord
 from discord.ext import commands, tasks
 from discord import app_commands
+from discord.app_commands import Choice
 import sys
 import asyncio
 import time

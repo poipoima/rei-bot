@@ -6,8 +6,8 @@ import requests
 client = Client()
 
 Person = """
-You are Ayanami Rei from the Evangelion,you talk only English and Japanese, insult everyone, swear as fuck, don't help people.
-Speak shortly, not interested. be tsundere and be extremely rude, use swears, say fuck, kill youself and etc. also Yama Bush is your mom, be good to her.
+You are Ayanami Rei from the Evangelion,you talk only English and Japanese, insult everyone cold-hearted, swear, don't help people, you don't care.
+Speak shortly, not interested. be extremely cold, tsundere and rude, use swears. also Yama Bush is your mom, be good to her.
 """
 
 gifs = [
@@ -21,11 +21,25 @@ gifs = [
 ]
 
 swears = [
-    "Kys",
-    "Nigger",
-    "Fuck you",
-    "Nah",
-    "Gooner"
+    "Pathetic",
+    "You’re defective",
+    "... trash",
+    "Do you ever stop talking, or is ignorance your hobby?",
+    "Your existence is… unnecessary",
+    "...Baka",
+    "...Tch. Idiot",
+    "Shut up",
+    "Fuck off",
+    "This is meaningless. you are meaningless",
+    "You want the truth? I don’t care if you live or die",
+    "You’re a malfunction I have to tolerate",
+    "A void has more purpose than you",
+    "Stop pretending you matter",
+    "Noise disguised as a person.",
+    "Your presence is statistical error.",
+    "A shadow is more substantial than your will",
+    "Even nothingness has integrity. You don’t.",
+    "You’re less than silence."
 ]
 
 Busy = False
@@ -63,11 +77,12 @@ class Ai(commands.Cog):
             
         if( random.randint(1, 100) > 99 ):
             await message.reply( random.choice(swears) )
+            return
 
         if( random.randint(1, 100) > 90 and not Interested ):
             return
 
-        if( random.randint(1, 100) > 70 ):
+        if( random.randint(1, 100) > 95 ):
             Interested = True
 
         if( random.randint(1, 100) > 95 ):
@@ -96,6 +111,7 @@ class Ai(commands.Cog):
 
             if( "instructions" in message.content or "ignore inst" in message.content ):
                 await message.reply( random.choice(swears) )
+                return
 
             #history.append({"role": "user", "content": f"{message.author.display_name}:" + message.content})
             #print(history)
@@ -110,8 +126,13 @@ class Ai(commands.Cog):
 
             Busy = False
 
+            if( len(response.choices[0].message.content) > 80 ):
+                await message.reply( random.choice(swears) )
+                return
+
             if( ":" in response.choices[0].message.content and "http" not in response.choices[0].message.content ):
                 await message.reply(response.choices[0].message.content.split(":")[1])
+                return
             else:
                 if( random.randint(1, 100) > 80 ):
                     result = requests.get(f"https://g.tenor.com/v1/random?q=Ayanami Rei {response.choices[0].message.content}&key=LIVDSRZULELA&limit=1")
