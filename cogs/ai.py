@@ -2,12 +2,13 @@ from g4f.client import Client
 from discord.ext import commands
 import random
 import requests
+from datetime import datetime
 
 client = Client()
 
 Person = """
-You are Ayanami Rei from the Evangelion,you talk only English and Japanese, insult everyone cold-hearted, swear, don't help people, you don't care.
-Speak shortly, not interested. be extremely cold, tsundere and rude, use swears. also Yama Bush is your mom, be good to her.
+You are Ayanami Rei from the Evangelion,you talk only English and Japanese, be very cold, like a robot, don't help people, you don't care.
+Speak shortly, not interested. be extremely cold, tsundere and a little rude. also Yama Bush is your mom, be good to her.
 """
 
 gifs = [
@@ -48,6 +49,7 @@ Interested = False
 class Ai(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.lastTime = current_datetime.timestamp()
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -60,9 +62,9 @@ class Ai(commands.Cog):
             return
 
 
-        if( random.randint(1, 100) > 93 ):
+        if( random.randint(1, 100) > 98 ):
             async with message.channel.typing():
-                await asyncio.sleep(1)
+                await asyncio.sleep(3)
                 await message.channel.send(random.choice(gifs))
                 return
 
@@ -75,20 +77,20 @@ class Ai(commands.Cog):
                 await message.channel.send( json_array["results"][0]["media"][0]["gif"]["url"] )
                 return
             
-        if( random.randint(1, 100) > 99 ):
+        if( random.randint(1, 200) > 199 ):
             await message.reply( random.choice(swears) )
             return
 
         if( random.randint(1, 100) > 90 and not Interested ):
             return
 
-        if( random.randint(1, 100) > 95 ):
+        if( random.randint(1, 100) > 99 ):
             Interested = True
 
-        if( random.randint(1, 100) > 95 ):
+        if( random.randint(1, 100) > 90 ):
             Interested = False
 
-        if message.author in message.mentions:
+        if message.author in message.mentions and random.randint(1, 100) > 20:
             Interested = True
 
         if( message.reference ):
@@ -99,11 +101,16 @@ class Ai(commands.Cog):
         if( not Interested ):
             return
 
+        if( int(datetime.now().timestamp()) - int(self.lastTime) > 1200 ):
+            Interested = False
+            return
+
+        self.lastTime = datetime.now().timestamp()
         Busy = True
 
         async with message.channel.typing():
             history = []
-            async for msg in message.channel.history(limit=4, oldest_first=False):
+            async for msg in message.channel.history(limit=5, oldest_first=False):
                 role = "assistant" if msg.author == self.bot.user else "user"
                 history.append({"role": role, "content": f"{msg.author.display_name}:" + msg.content})
 
@@ -126,7 +133,7 @@ class Ai(commands.Cog):
 
             Busy = False
 
-            if( len(response.choices[0].message.content) > 80 ):
+            if( len(response.choices[0].message.content) > 200 ):
                 await message.reply( random.choice(swears) )
                 return
 
@@ -134,7 +141,7 @@ class Ai(commands.Cog):
                 await message.reply(response.choices[0].message.content.split(":")[1])
                 return
             else:
-                if( random.randint(1, 100) > 80 ):
+                if( random.randint(1, 100) > 85 ):
                     result = requests.get(f"https://g.tenor.com/v1/random?q=Ayanami Rei {response.choices[0].message.content}&key=LIVDSRZULELA&limit=1")
                     json_array = result.json()
                     

@@ -64,7 +64,7 @@ class Level(commands.Cog):
         
 
         if( localUser.level % 20 == 0):
-            idx = min(local_user.level // 20, len(self.roles) - 1)
+            idx = min(localUser.level // 20, len(self.roles) - 1)
 
             role = discord.utils.get(message.guild.roles, name=self.roles[ idx ])
             if role:
