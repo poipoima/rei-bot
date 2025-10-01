@@ -56,17 +56,16 @@ def loadAll():
         code = codeReader.read()
         codeReader.close()
 
-        if( len(code) < 2 ):
+        if( len(code) < 3 ):
             continue
         try:
-            db.raw(code)
-            print(code)
+            db.statement(code)
 
             migratedAppender.write(f"/{file_name}-\n")
 
             print(f"+Migration {file_name}")
         except Exception as e:
-            print(f"Failed migration {file_name} {e}")
+            print(f"Failed migration {file_name}")
 
 
     migratedAppender.close()
