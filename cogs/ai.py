@@ -49,7 +49,7 @@ Interested = False
 class Ai(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.lastTime = current_datetime.timestamp()
+        self.lastTime = datetime.now().timestamp()
 
     @commands.Cog.listener()
     async def on_message(self, message):
