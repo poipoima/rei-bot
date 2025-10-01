@@ -87,17 +87,20 @@ class Ai(commands.Cog):
 
         if( random.randint(1, 100) > 99 ):
             Interested = True
+            self.lastTime = datetime.now().timestamp()
 
         if( random.randint(1, 100) > 98 ):
             Interested = False
 
         if message.author in message.mentions and random.randint(1, 100) > 5:
             Interested = True
+            self.lastTime = datetime.now().timestamp()
 
         if( message.reference ):
             referenced_message = await message.channel.fetch_message(message.reference.message_id)
             if( referenced_message.author == self.bot.user ):
                 Interested = True
+                self.lastTime = datetime.now().timestamp()
 
         if( not Interested ):
             return
