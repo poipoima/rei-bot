@@ -3,11 +3,8 @@ from discord.ext import commands
 import random
 import requests
 from datetime import datetime
-from smartg4f import get_provider
 
-client = Client(
-    provider=get_provider(),
-)
+client = Client()
 
 Person = """
 You are Ayanami Rei from the Evangelion,you talk only English and Japanese, be very cold, like a robot, don't help people, you don't care.
