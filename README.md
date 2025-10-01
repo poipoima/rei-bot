@@ -1,24 +1,39 @@
-# Discord Rei Bot
+# Discord Rei Bot  
 
-A Discord bot with a flexible migration system and hot-reloading support.  
+A Discord bot powered by a flexible **magi command system**, automatic migrations, and hot-reloading support.  
 
-## Features
+## ✨ Features  
 
-- **Database Migrations**  
-  Built-in migration system that lets you easily add or remove parameters, tables, and schema changes.  
+- **🧩 Magi Commands (CLI Tool)**  
+  The `magi` tool helps you manage everything from database migrations to models and cogs:  
 
-- **ORM Support**  
-  Uses [Orator](https://github.com/sdispater/orator/) (an Eloquent-like ORM), so you can work with the database through clean, object-oriented models instead of raw SQL.  
+  | Command                  | Description |
+  |--------------------------|-------------|
+  | `magi migrate`           | Run all pending migrations |
+  | `magi migration:make`    | Create a new table migration |
+  | `magi migration:add`     | Add new columns to a table |
+  | `magi migration:modify`  | Modify existing columns |
+  | `magi migration:remove`  | Remove columns |
+  | `magi model:make`        | Create a new model (with fillable fields + migrations) |
+  | `magi cog:make`          | Generate a new Cog with slash/classic commands, also allows you to use AI for commands creation |
 
-- **Hot Reloading**  
-  Update your code in real time! No need to restart the bot, changes are automatically reloaded while the bot is running.  
+- **📦 Database Migrations**  
+  No need to write raw SQL — migrations are generated automatically through interactive prompts.  
 
-- **Cog System**  
-  Fully supports standard Discord cogs without requiring cog's setup functions.  
+- **🔗 ORM Support**  
+  Uses [Orator](https://github.com/sdispater/orator/) (Eloquent-like ORM). Work with your database through clean Python models.  
 
-- **AI Rei Cog**  
-  Includes a special cog where the bot roleplays as **Ayanami Rei** from *Neon Genesis Evangelion* 🤖✨
+- **♻️ Hot Reloading**  
+  Update your code in real time. The bot reloads changes instantly without restarts.  
 
-## Also
-  All the changes to the main branch also applies to the bot that is running on my [Discord Server](https://discord.gg/tUZzEH5H9U), so, you can play with it :D
-  It updates automatically, just make a commit, i will look at it and merge, that's all it takes.
+- **⚙️ Cog System**  
+  Works with both classic (`!command`) and slash (`/command`) commands. Supports normal Cogs and GroupCogs, without setup command!  
+
+- **🤖 AI Rei Cog**  
+  Includes a Cog where the bot roleplays as **Ayanami Rei** from *Neon Genesis Evangelion*.  
+
+## 🚀 Live Demo  
+All commits to the `main` branch are automatically applied to the bot running on my [Discord Server](https://discord.gg/tUZzEH5H9U).  
+You can play with it live — just make a commit, I’ll review & merge, and the bot updates itself.  
+
+---

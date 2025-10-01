@@ -31,6 +31,7 @@ swears = [
     "...Tch. Idiot",
     "Shut up",
     "Fuck off",
+    "Nigger",
     "This is meaningless. you are meaningless",
     "You want the truth? I don’t care if you live or die",
     "You’re a malfunction I have to tolerate",

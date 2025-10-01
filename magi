@@ -9,10 +9,24 @@ from watchdog.observers import Observer
 from watchdog.events import LoggingEventHandler, FileSystemEventHandler
 from orator import DatabaseManager, Model
 from dotenv import load_dotenv
+from g4f.client import Client
 from bullet import YesNo, Bullet, Input
 load_dotenv()
 
 observer = Observer()
+aiClient = Client()
+
+aiCommandSlash = """
+Generate a simple code that will be put into an @app_commands.command function in discord.py
+Command name is $cmd$.
+Don't need to generate @app_commands.
+but you should generate 
+async def PLACEHOLDER(self, interaction: discord.Interaction 'anything user want to be here too or nothing'):
+    and further code
+always use PLACEHOLDER as a name for a function, do imports only in the function.
+DO NOT ADD ANY COMMENTS, do not say anything, do not tell how to use it, return a pure code please.
+ONLY CODE, DO NOT TALK.
+"""
 
 config = {
     'mysql': {
@@ -295,6 +309,127 @@ ALTER TABLE {tableName}
     except IOError as e:
         print(f"Error writing to file: {e}")
 
+from bullet import Bullet
+import os
+
+
+def collectCommands():
+    commands_list = []
+
+    while True:
+        name = input("Enter command name (or press Enter to finish): ").strip()
+        if not name:
+            break
+
+        description = input(f"Enter description for '{name}': ").strip() or "No description provided."
+
+        cli = Bullet(
+            prompt=f"\nSelect command type for '{name}': ",
+            choices=["slash (app_commands)", "classic (!command)"],
+            indent=0,
+            align=5,
+            margin=2,
+            shift=0,
+            bullet="→",
+            pad_right=5,
+            return_index=False
+        )
+
+        cmd_type = cli.launch()
+
+        commands_list.append({
+            "name": name,
+            "description": description,
+            "type": cmd_type
+        })
+
+    return commands_list
+
+
+def makeCog():
+    cogName = input("Cog name ( Singular form ): ").strip()
+    cogNameC = cogName.capitalize()
+
+    cli = Bullet(
+        prompt="\nSelect Cog type: ",
+        choices=["Normal Cog", "Group Cog (for slash commands)"],
+        bullet="→",
+        pad_right=5
+    )
+    cog_type = cli.launch()
+
+    commands_list = collectCommands()
+
+    cogNamePath = f"cogs/{cogName.lower()}.py"
+    os.makedirs("cogs", exist_ok=True)
+
+    command_defs = []
+    for cmd in commands_list:
+        if cmd["type"].startswith("slash"):
+            client = YesNo(f"Do you want to generate a basic code with AI for {cmd['name']}? ", default = 'n')
+            res = client.launch()
+            
+            if( res ):
+                whatYoutWant = input( "What the command should do?\n" )
+
+                history = []
+                history.append({"role": "user", "content": whatYoutWant})
+                history.insert(0, {"role": "system", "content": aiCommandSlash.replace("$cmd$",cmd['name'])})
+
+                response = aiClient.chat.completions.create(
+                    model="gpt-4",
+                    messages=history,
+                    web_search=False
+                )
+
+                command_defs.append(f"""
+    @app_commands.command(name="{cmd['name']}", description="{cmd['description']}")
+    {response.choices[0].message.content.replace("PLACEHOLDER",cmd['name']).replace("```python","").replace("```","").replace("\n\n","\n").replace("\n","\n    ")}""")
+            else:
+                command_defs.append(f"""
+    @app_commands.command(name="{cmd['name']}", description="{cmd['description']}")
+    async def {cmd['name']}(self, interaction: discord.Interaction):
+        await interaction.response.send_message("Executed /{cmd['name']}!")""")
+        else:
+            command_defs.append(f"""
+    @commands.command(name="{cmd['name']}", help="{cmd['description']}")
+    async def {cmd['name']}(self, ctx: commands.Context):
+        await ctx.send("Executed !{cmd['name']}!")""")
+
+    command_defs_str = "\n".join(command_defs)
+
+    if cog_type.startswith("Group"):
+        content_to_write = f"""# Created with magi tool
+import discord
+from discord.ext import commands
+from discord import app_commands
+
+class {cogNameC}(commands.GroupCog, name="{cogName.lower()}", description="{cogName.lower()} commands"):
+    def __init__(self, bot):
+        self.bot = bot
+{command_defs_str}
+
+"""
+    else:
+        content_to_write = f"""# Created with magi tool
+import discord
+from discord.ext import commands
+from discord import app_commands
+
+class {cogNameC}(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+{command_defs_str}
+
+"""
+
+    try:
+        with open(cogNamePath, "w") as file:
+            file.write(content_to_write)
+        print(f"+Cog '{cogNameC}' created successfully with {len(commands_list)} command(s). Type: {cog_type}")
+    except IOError as e:
+        print(f"Error writing to file: {e}")
+
 
 functions = {
     "migrate": migrateAll,
@@ -302,7 +437,8 @@ functions = {
     "migration:add": makeAddMigration,
     "migration:modify": makeModifyMigration,
     "migration:remove": makeDropMigration,
-    "model:make": makeModel
+    "model:make": makeModel,
+    "cog:make": makeCog,
 }
 
 def main():
