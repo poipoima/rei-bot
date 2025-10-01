@@ -104,7 +104,7 @@ class Ai(commands.Cog):
         if( not Interested ):
             return
 
-        if( int(datetime.now().timestamp()) - int(self.lastTime) > 12000 ):
+        if( int(datetime.now().timestamp()) - int(self.lastTime) > 1200 ):
             Interested = False
             return
 
