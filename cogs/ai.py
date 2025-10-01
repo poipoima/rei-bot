@@ -81,6 +81,11 @@ class Ai(commands.Cog):
             await message.reply( random.choice(swears) )
             return
 
+        if( message.reference ):
+            referenced_message = await message.channel.fetch_message(message.reference.message_id)
+            if( referenced_message.author == self.bot.user ):
+                Interested = True
+                
         if( random.randint(1, 100) > 90 and not Interested ):
             return
 
@@ -93,10 +98,6 @@ class Ai(commands.Cog):
         if message.author in message.mentions and random.randint(1, 100) > 20:
             Interested = True
 
-        if( message.reference ):
-            referenced_message = await message.channel.fetch_message(message.reference.message_id)
-            if( referenced_message.author == self.bot.user ):
-                Interested = True
 
         if( not Interested ):
             return
