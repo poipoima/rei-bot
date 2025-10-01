@@ -80,7 +80,6 @@ class Ai(commands.Cog):
         if( random.randint(1, 200) > 199 ):
             await message.reply( random.choice(swears) )
             return
-
                 
         if( random.randint(1, 100) > 99 and not Interested ):
             return
@@ -92,7 +91,7 @@ class Ai(commands.Cog):
         if( random.randint(1, 100) > 98 ):
             Interested = False
 
-        if message.author in message.mentions and random.randint(1, 100) > 5:
+        if self.bot.user in message.mentions and random.randint(1, 100) > 5:
             Interested = True
             self.lastTime = datetime.now().timestamp()
 
@@ -135,6 +134,7 @@ class Ai(commands.Cog):
                 web_search=False
             )
 
+            self.lastTime = datetime.now().timestamp()
             Busy = False
 
             if( len(response.choices[0].message.content) > 200 ):
