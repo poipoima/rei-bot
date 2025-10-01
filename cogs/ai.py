@@ -3,8 +3,11 @@ from discord.ext import commands
 import random
 import requests
 from datetime import datetime
+from smartg4f import get_provider
 
-client = Client()
+client = Client(
+    provider=get_provider(),
+)
 
 Person = """
 You are Ayanami Rei from the Evangelion,you talk only English and Japanese, be very cold, like a robot, don't help people, you don't care.
@@ -153,5 +156,5 @@ class Ai(commands.Cog):
                     return
 
                 await message.reply(response.choices[0].message.content)
-
+                return
             
