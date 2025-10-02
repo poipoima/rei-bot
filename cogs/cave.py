@@ -62,7 +62,7 @@ class Cave(commands.GroupCog, name="cave", description="cave commands"):
             await interaction.response.send_message(embed=mining_embed)
             message = await interaction.original_response()
 
-            await asyncio.sleep(3)
+            await asyncio.sleep(5)
 
             mined_gems = choice([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 
