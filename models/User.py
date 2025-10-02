@@ -1,4 +1,5 @@
 from orator import DatabaseManager, Model
+from models.Inventory import Inventory
 
 class User(Model):
     __fillable__ = [
@@ -12,4 +13,6 @@ class User(Model):
         'created_at',
         'updated_at'
     ]
- 
+
+    def getInventory(self):
+        return Inventory.where( "user_id", self.id ).get()

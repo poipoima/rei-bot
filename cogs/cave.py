@@ -5,6 +5,8 @@ from discord import app_commands
 from random import choice
 import asyncio
 from models.User import User
+from models.Item import Item
+from models.Inventory import Inventory as InventoryObject
 
 class Cave(commands.GroupCog, name="cave", description="cave commands"):
     def __init__(self, bot):
@@ -64,12 +66,13 @@ class Cave(commands.GroupCog, name="cave", description="cave commands"):
 
             await asyncio.sleep(5)
 
-            mined_gems = choice([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-
-            if mined_gems == 0:
+            mined_amount = choice([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+            mined_item = choice([1,1,1,1,1,0])
+            
+            if mined_amount == 0:
                 result_embed = discord.Embed(
                     title="💎 Mining Result",
-                    description="You found no gems...",
+                    description="You found nothing...",
                     color=discord.Color.red()
                 )
                 result_embed.set_image(url=nothing_gif)
@@ -77,17 +80,34 @@ class Cave(commands.GroupCog, name="cave", description="cave commands"):
                 await message.edit(embed=result_embed)
                 return
 
-            localUser.money += mined_gems
-            localUser.save()
+            if( mined_item == 0 ):
+                localUser.money += mined_amount
+                localUser.save()
 
-            result_embed = discord.Embed(
-                title="💎 Mining Result",
-                description=f"You mined **{mined_gems}** shiny gems!",
-                color=discord.Color.green()
-            )
-            result_embed.set_image(url=reward_gif)
+                result_embed = discord.Embed(
+                    title="💎 Mining Result",
+                    description=f"You mined **{mined_amount}** shiny gems!",
+                    color=discord.Color.blue()
+                )
+                result_embed.set_image(url=reward_gif)
 
-            await message.edit(embed=result_embed)
+                await message.edit(embed=result_embed)
+            else:
+                LootedItem = Item.find(mined_item)
+                        
+                NewUserInventory = InventoryObject.first_or_create(user_id=localUser.id, item_id=mined_item)
+                NewUserInventory = InventoryObject.first_or_create(user_id=localUser.id, item_id=mined_item)
+                NewUserInventory.amount = ( mined_amount if NewUserInventory.amount is None else NewUserInventory.amount + mined_amount ) 
+                NewUserInventory.save()
+
+                result_embed = discord.Embed(
+                    title="Mining Result",
+                    description=f"You mined **{LootedItem.name}** {mined_amount}x",
+                    color=discord.Color.green()
+                )
+                #result_embed.set_image(url=reward_gif)
+
+                await message.edit(embed=result_embed)
 
         finally:
             self.active_miners.discard(user_id)

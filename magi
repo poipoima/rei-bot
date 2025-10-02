@@ -12,10 +12,12 @@ from dotenv import load_dotenv
 from g4f.client import Client
 from bullet import YesNo, Bullet, Input
 import eloquentLoader
+from pluralizer import Pluralizer
 load_dotenv()
 
 observer = Observer()
 aiClient = Client()
+pluralizer = Pluralizer()
 
 aiCommandSlash = """
 Generate a simple code that will be put into an @app_commands.command function in discord.py
@@ -136,6 +138,7 @@ def makeMigration(collect=True, fields=None, modelName="", modelRawName=""):
 
     if not modelName:
         modelName = input("Migration name: ").capitalize()
+        modelRawName = modelName
 
     files_in_directory = get_file_names("migrations")
 
@@ -153,7 +156,7 @@ def makeMigration(collect=True, fields=None, modelName="", modelRawName=""):
     all_fields = ",\n".join(base_fields + ([custom_fields] if custom_fields else []))
 
     content_to_write = f"""-- Created with magi tool
-CREATE TABLE {modelName.lower()} (
+CREATE TABLE {pluralizer.pluralize(modelRawName.lower())} (
 {all_fields}
 );
 """
@@ -179,7 +182,7 @@ def makeModel():
 
 
     fields = collectFields()
-    makeMigration(False, fields, f"creation_of_table_{modelName.lower()}s", f"{modelName}s")
+    makeMigration(False, fields, f"creation_of_table_{pluralizer.pluralize(modelName.lower())}", f"{modelName}")
 
     fillable_fields = ["id", "created_at", "updated_at"] + list(fields.keys())
     fillable_str = ",\n        ".join([f"'{f}'" for f in fillable_fields])
