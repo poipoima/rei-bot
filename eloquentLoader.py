@@ -26,7 +26,6 @@ config = {
 db = DatabaseManager(config)
 Model.set_connection_resolver(db)
 
-
 async def get_file_names(directory_path):
     file_names = []
     for entry in os.listdir(directory_path):
