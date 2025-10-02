@@ -42,7 +42,7 @@ class Inventory(commands.GroupCog, name="inventory", description="inventory comm
             Item = inventoryItem.getItem()
             if current.lower() in Item.name.lower():
                 choices.append(app_commands.Choice(
-                    name=f"{Item.icon} {Item.name} ({inventoryItem.amount})",
+                    name=f"{Item.name} ({inventoryItem.amount})",
                     value=str(Item.id)
                 ))
 
