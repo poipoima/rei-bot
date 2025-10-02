@@ -35,6 +35,15 @@ async def get_file_names(directory_path):
             file_names.append(entry)
     return file_names
 
+def get_file_names_sync(directory_path):
+    file_names = []
+    for entry in os.listdir(directory_path):
+        full_path = os.path.join(directory_path, entry)
+        if os.path.isfile(full_path):
+            file_names.append(entry)
+    return file_names
+    
+
 async def loadAll():
     files_in_directory = await get_file_names("models")
     for file_name in files_in_directory:
@@ -51,6 +60,18 @@ async def loadAll():
         exec( code, globals(), globals() )
 
         print(f"+Model {file_name}")
+
+
+def getModelsList():
+    files_in_directory = get_file_names_sync("models")
+    models = []
+    for file_name in files_in_directory:
+        if( "__pycache__" in file_name ):
+            continue
+        
+        models.append( file_name.split(".")[0] )
+
+    return models
 
 async def reloadModel( path ):
     if( "models/" in path ):

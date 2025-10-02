@@ -11,6 +11,7 @@ from orator import DatabaseManager, Model
 from dotenv import load_dotenv
 from g4f.client import Client
 from bullet import YesNo, Bullet, Input
+import eloquentLoader
 load_dotenv()
 
 observer = Observer()
@@ -26,6 +27,9 @@ async def PLACEHOLDER(self, interaction: discord.Interaction 'anything user want
 always use PLACEHOLDER as a name for a function, do imports only in the function.
 DO NOT ADD ANY COMMENTS, do not say anything, do not tell how to use it, return a pure code please.
 ONLY CODE, DO NOT TALK.
+YOu can use models (orator lib) and include them like
+from models.User import User
+here's the models list ($models$)
 """
 
 config = {
@@ -372,9 +376,11 @@ def makeCog():
             if( res ):
                 whatYoutWant = input( "What the command should do?\n" )
 
+                modelsList = ", ".join( eloquentLoader.getModelsList() )
+                
                 history = []
                 history.append({"role": "user", "content": whatYoutWant})
-                history.insert(0, {"role": "system", "content": aiCommandSlash.replace("$cmd$",cmd['name'])})
+                history.insert(0, {"role": "system", "content": aiCommandSlash.replace("$cmd$",cmd['name']).replace("$models$",modelsList)})
 
                 response = aiClient.chat.completions.create(
                     model="gpt-4",
