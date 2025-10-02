@@ -42,7 +42,7 @@ class Casino(commands.GroupCog, name="casino", description="casino commands"):
 
         await asyncio.sleep(3)
 
-        multiplier = choice([0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        multiplier = choice([0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 
         winnings = amount * multiplier
         localUser.money -= amount
