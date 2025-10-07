@@ -32,6 +32,10 @@ swears = [
     "Shut up",
     "Fuck off",
     "Nigger",
+    "Nigger",
+    "Nigger",
+    "Nigger",
+    "Nigger",
     "This is meaningless. you are meaningless",
     "You want the truth? I don’t care if you live or die",
     "You’re a malfunction I have to tolerate",
@@ -46,12 +50,12 @@ swears = [
 
 Busy = False
 Interested = False
+lastTime = datetime.now().timestamp()
 
 class Ai(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.lastTime = datetime.now().timestamp()
-
+        
     @commands.Cog.listener()
     async def on_message(self, message):
         global Person, Busy, client, gifs, Interested
@@ -87,29 +91,29 @@ class Ai(commands.Cog):
 
         if( random.randint(1, 100) > 99 ):
             Interested = True
-            self.lastTime = datetime.now().timestamp()
+            lastTime = datetime.now().timestamp()
 
         if( random.randint(1, 100) > 98 ):
             Interested = False
 
         if self.bot.user in message.mentions and random.randint(1, 100) > 5:
             Interested = True
-            self.lastTime = datetime.now().timestamp()
+            lastTime = datetime.now().timestamp()
 
         if( message.reference ):
             referenced_message = await message.channel.fetch_message(message.reference.message_id)
             if( referenced_message.author == self.bot.user ):
                 Interested = True
-                self.lastTime = datetime.now().timestamp()
+                lastTime = datetime.now().timestamp()
 
         if( not Interested ):
             return
 
-        if( int(datetime.now().timestamp()) - int(self.lastTime) > 1200 ):
+        if( int(datetime.now().timestamp()) - int(lastTime) > 1200 ):
             Interested = False
             return
 
-        self.lastTime = datetime.now().timestamp()
+        lastTime = datetime.now().timestamp()
         Busy = True
 
         async with message.channel.typing():
@@ -135,7 +139,7 @@ class Ai(commands.Cog):
                 web_search=False
             )
 
-            self.lastTime = datetime.now().timestamp()
+            lastTime = datetime.now().timestamp()
             Busy = False
 
             if( len(response.choices[0].message.content) > 200 ):
